@@ -1,0 +1,8 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:men="http://www.mendix.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <men:RetrieveJobStatus>
+         <JobId><%= JobId %></JobId>
+      </men:RetrieveJobStatus>
+   </soapenv:Body>
+</soapenv:Envelope>

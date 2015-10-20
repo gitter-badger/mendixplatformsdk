@@ -1,0 +1,15 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:exam="http://www.mendix.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <exam:CreateNewApp>
+         <ProjectName><%= ProjectName %></ProjectName>
+         <% if (ProjectSummary) { %>
+         <ProjectSummary><%= ProjectSummary %></ProjectSummary>
+         <% } else { %>
+         <ProjectSummary xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+         <% } %>
+         <User><%= User %></User>
+         <ApiKey><%= ApiKey %></ApiKey>
+      </exam:CreateNewApp>
+   </soapenv:Body>
+</soapenv:Envelope>

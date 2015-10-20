@@ -1,0 +1,5 @@
+*.ts
+typings
+!*.d.ts
+README.development.md
+mendix-platform-sdk.d.ts.patch

@@ -1,0 +1,22 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:men="http://www.mendix.com/">
+      <soapenv:Header/>
+      <soapenv:Body>
+            <men:ExposeTeamServerRevisionAsOnlineWorkingCopy>
+                  <ExposeTeamServerRevisionRequest>
+                        <Username><%= Username %></Username>
+                        <ApiKey><%= ApiKey %></ApiKey>
+                        <ProjectId><%= ProjectId %></ProjectId>
+                        <% if (Branch) { %>
+                              <Branch><%= Branch %></Branch>
+                        <% } else { %>
+                              <Branch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+                        <% }
+                           if (Revision) { %>
+                              <Revision><%= Revision %></Revision>
+                        <% } else { %>
+                              <Revision xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+                        <% } %>
+                  </ExposeTeamServerRevisionRequest>
+            </men:ExposeTeamServerRevisionAsOnlineWorkingCopy>
+      </soapenv:Body>
+</soapenv:Envelope>

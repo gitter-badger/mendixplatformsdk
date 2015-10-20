@@ -1,0 +1,10 @@
+doc/
+node_modules/
+typings/
+
+*.js
+*.js.map
+*.d.ts
+
+.settings/config.json
+.vscode/
