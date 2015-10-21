@@ -247,6 +247,25 @@ export class PlatformSdkClient {
 		});
 	}
 
+	openOnlineWorkingCopy(wcId: string, projectId: string, projectName: string, revision?: Revision): when.Promise<OnlineWorkingCopy> {
+		return when.promise<OnlineWorkingCopy>((resolve, reject) => {
+			const project = new Project(this._client, projectId, projectName);
+			this._client.model().openWorkingCopy(wcId,
+				(model: IModel) => {
+					console.log(`Successfully opened new online working copy ${wcId} for project ${project.id() } : ${project.name() }`);
+					const rev: Revision = revision ? revision : new Revision(-1, new Branch(project, null));
+					const workingCopy: OnlineWorkingCopy = new OnlineWorkingCopy(this._client, wcId, rev, model);
+
+					resolve(workingCopy);
+				},
+				error => {
+					console.error('Failed to open new online working copy %s for project %s : %s:', wcId, project.id(), project.name());
+
+					reject(error);
+				});
+		});
+	}
+
 	/**
 	* Expose a specific Team Server revision as an Online Working Copy.
 	*
@@ -281,21 +300,7 @@ export class PlatformSdkClient {
 
 				console.log('Successfully created new online working copy %s for project %s : %s', wcId, project.id(), project.name());
 
-				return when.promise<OnlineWorkingCopy>((resolve, reject) => {
-					this._client.model().openWorkingCopy(wcId,
-						(model: IModel) => {
-							console.log(`Successfully opened new online working copy ${wcId} for project ${project.id() } : ${project.name() }`);
-							const rev: Revision = revision ? revision : new Revision(-1, new Branch(project, null));
-							const workingCopy: OnlineWorkingCopy = new OnlineWorkingCopy(this._client, wcId, rev, model);
-
-							resolve(workingCopy);
-						},
-						error => {
-							console.error('Failed to open new online working copy %s for project %s : %s:', wcId, project.id(), project.name());
-
-							reject(error);
-						});
-				});
+				return this.openOnlineWorkingCopy(wcId, project.id(), project.name(), revision);
 			});
 	}
 
