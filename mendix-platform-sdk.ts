@@ -247,13 +247,22 @@ export class PlatformSdkClient {
 		});
 	}
 
-	openOnlineWorkingCopy(wcId: string, projectId: string, projectName: string, revision?: Revision): when.Promise<OnlineWorkingCopy> {
+	/**
+	* Open an Online Working Copy.
+	*
+	* @param wcId Online Working Copy ID
+	* @param projectId the ID of Mendix App Project where the Online Working Copy is created from
+	* @param projectName the name of Mendix App Project where the Online Working Copy is created from
+	* @param revision A Revision instance pointing to a revision number on a specific Team Server branch
+	* @returns a Promise of an OnlineWorkingCopy in the Mendix Model Server corresponding to the given project and revision.
+	*/
+	openOnlineWorkingCopy(wcId: string, projectId: string, projectName: string, sourceRevision?: Revision): when.Promise<OnlineWorkingCopy> {
 		return when.promise<OnlineWorkingCopy>((resolve, reject) => {
 			const project = new Project(this._client, projectId, projectName);
 			this._client.model().openWorkingCopy(wcId,
 				(model: IModel) => {
 					console.log(`Successfully opened new online working copy ${wcId} for project ${project.id() } : ${project.name() }`);
-					const rev: Revision = revision ? revision : new Revision(-1, new Branch(project, null));
+					const rev: Revision = sourceRevision ? sourceRevision : new Revision(-1, new Branch(project, null));
 					const workingCopy: OnlineWorkingCopy = new OnlineWorkingCopy(this._client, wcId, rev, model);
 
 					resolve(workingCopy);
