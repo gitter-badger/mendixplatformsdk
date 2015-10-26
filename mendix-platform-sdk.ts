@@ -281,15 +281,15 @@ export class PlatformSdkClient {
 	* @param revision A Revision instance pointing to a revision number on a specific Team Server branch
 	* @returns a Promise of an OnlineWorkingCopy in the Mendix Model Server corresponding to the given project and revision.
 	*/
-	createOnlineWorkingCopy(project: Project, revision: Revision): when.Promise<OnlineWorkingCopy> {
-		console.log(`Creating new online working copy for project ${project.id() }`);
+	createOnlineWorkingCopy(projectId: string, branchName : string = null, revisionNo: number = -1): when.Promise<OnlineWorkingCopy> {
+		console.log(`Creating new online working copy for project ${projectId }`);
 
 		const request = this._createRequestContent(PlatformSdkClient.CreateOnlineWorkingCopyXml, {
 			"Username": this._username,
 			"ApiKey": this._apikey,
-			"ProjectId": project.id(),
-			"Branch": revision ? revision.branch().name() : null,
-			"Revision": revision ? revision.num() : null
+			"ProjectId": projectId,
+			"Branch": branchName,
+			"Revision": revisionNo
 		});
 
 		const apiClient = rest
@@ -306,9 +306,9 @@ export class PlatformSdkClient {
 			.then(jobResult => {
 				const wcId: string = jobResult.result;
 
-				console.log('Successfully created new online working copy %s for project %s', wcId, project.id());
+				console.log('Successfully created new online working copy %s for project %s', wcId, projectId);
 
-				return this.openOnlineWorkingCopy(wcId, project.id());
+				return this.openOnlineWorkingCopy(wcId, projectId);
 			});
 	}
 
@@ -320,7 +320,7 @@ export class PlatformSdkClient {
 	* @param baseRevision (Optional) The base revision for this commit, or -1 for HEAD. Default is -1.
 	* @returns a Promise of a Team Server Revision corresponding to the given workingCopy.
 	*/
-	commitToTeamServer(workingCopy: OnlineWorkingCopy, branchName: string = null, baseRevision: number = -1): when.Promise<Revision> {
+	private commitToTeamServer(workingCopy: OnlineWorkingCopy, branchName: string = null, baseRevision: number = -1): when.Promise<Revision> {
 		if (workingCopy == null || workingCopy.project() == null) {
 			return when.reject<Revision>(`Working copy is empty or does not contain referral to project`);
 		} else if (baseRevision < -1) {
