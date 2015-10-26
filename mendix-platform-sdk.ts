@@ -204,7 +204,7 @@ export class PlatformSdkClient {
 			})
 			.then(jobResult => {
 				console.log(`Project created successfully for user ${this._username} with id ${jobResult.result}`);
-				return new Project(this._client, jobResult.result, projectName);
+				return new Project(this._client, jobResult.result);
 			});
 	}
 
@@ -225,9 +225,9 @@ export class PlatformSdkClient {
 			let rawProjects: [{}] = response.entity;
 
 			// TODO: Return a mapping of each raw project to a nicely typed representation.
-			let projects = rawProjects.map(raw => new Project(client, 'TODO-ID', 'Sprintr'));
+			let projects = rawProjects.map(raw => new Project(client, 'TODO-ID'));
 
-			console.log('Retrieved projects for user %s: %s', this._username, projects.map(p => p.id() + ':' + p.name()).join(', '));
+			console.log('Retrieved projects for user %s: %s', this._username, projects.map(p => p.id()));
 
 			return projects;
 		});
@@ -237,12 +237,12 @@ export class PlatformSdkClient {
 	* TODO: implementation
 	*/
 	retrieveBranches(project: Project): when.Promise<Branch[]> {
-		console.log('Retrieving branches for project %s : %s', project.id(), project.name());
+		console.log('Retrieving branches for project %s', project.id());
 		return when.promise<Branch[]>((resolve, reject) => {
 			// TODO: Retrieve available branches from the Platform API
 			let branches: Branch[] = [];
 
-			console.log('Successfully retrieved branches for project %s : %s : %s', project.id(), project.name(), branches.map(b => b.name).join(', '));
+			console.log('Successfully retrieved branches for project %s : %s', project.id(), branches.map(b => b.name).join(', '));
 			resolve(branches);
 		});
 	}
@@ -256,19 +256,18 @@ export class PlatformSdkClient {
 	* @param revision A Revision instance pointing to a revision number on a specific Team Server branch
 	* @returns a Promise of an OnlineWorkingCopy in the Mendix Model Server corresponding to the given project and revision.
 	*/
-	openOnlineWorkingCopy(wcId: string, projectId: string, projectName: string, sourceRevision?: Revision): when.Promise<OnlineWorkingCopy> {
+	openOnlineWorkingCopy(wcId: string, projectId: string, sourceRevision?: Revision): when.Promise<OnlineWorkingCopy> {
 		return when.promise<OnlineWorkingCopy>((resolve, reject) => {
-			const project = new Project(this._client, projectId, projectName);
+			const project = new Project(this._client, projectId);
 			this._client.model().openWorkingCopy(wcId,
 				(model: IModel) => {
-					console.log(`Successfully opened new online working copy ${wcId} for project ${project.id() } : ${project.name() }`);
-					const rev: Revision = sourceRevision ? sourceRevision : new Revision(-1, new Branch(project, null));
-					const workingCopy: OnlineWorkingCopy = new OnlineWorkingCopy(this._client, wcId, rev, model);
+					console.log(`Successfully opened new online working copy ${wcId} for project ${project.id() }`);
+					const workingCopy: OnlineWorkingCopy = new OnlineWorkingCopy(this._client, wcId, project, model);
 
 					resolve(workingCopy);
 				},
 				error => {
-					console.error('Failed to open new online working copy %s for project %s : %s:', wcId, project.id(), project.name());
+					console.error('Failed to open new online working copy %s for project %s', wcId, project.id());
 
 					reject(error);
 				});
@@ -283,7 +282,7 @@ export class PlatformSdkClient {
 	* @returns a Promise of an OnlineWorkingCopy in the Mendix Model Server corresponding to the given project and revision.
 	*/
 	createOnlineWorkingCopy(project: Project, revision: Revision): when.Promise<OnlineWorkingCopy> {
-		console.log(`Creating new online working copy for project ${project.id() } : ${project.name() }`);
+		console.log(`Creating new online working copy for project ${project.id() }`);
 
 		const request = this._createRequestContent(PlatformSdkClient.CreateOnlineWorkingCopyXml, {
 			"Username": this._username,
@@ -307,9 +306,9 @@ export class PlatformSdkClient {
 			.then(jobResult => {
 				const wcId: string = jobResult.result;
 
-				console.log('Successfully created new online working copy %s for project %s : %s', wcId, project.id(), project.name());
+				console.log('Successfully created new online working copy %s for project %s', wcId, project.id());
 
-				return this.openOnlineWorkingCopy(wcId, project.id(), project.name(), revision);
+				return this.openOnlineWorkingCopy(wcId, project.id(), revision);
 			});
 	}
 
@@ -547,17 +546,15 @@ export class Project {
 	private _client: MendixSdkClient;
 
 	private _id: string;
-	private _name: string;
 
 	/**
 	* @param client a MendixSdkClient instance
 	* @param id Project id returned by the Mendix Projects API
 	* @param name The desired project name
 	*/
-	constructor(client: MendixSdkClient, id: string, name: string) {
+	constructor(client: MendixSdkClient, id: string) {
 		this._client = client;
 		this._id = id;
-		this._name = name;
 	}
 
 	/**
@@ -565,13 +562,6 @@ export class Project {
 		 */
 	id(): string {
 		return this._id;
-	}
-
-	/**
-		 * @returns name of this Project
-		 */
-	name(): string {
-		return this._name;
 	}
 
 	retrieveBranches(): when.Promise<Branch[]> {
@@ -603,13 +593,13 @@ export class Project {
 export class OnlineWorkingCopy {
 	private _client: MendixSdkClient;
 	private _id: string;
-	private _sourceRevision: Revision;
+	private _project: Project;
 	private _model: IModel;
 
-	constructor(client: MendixSdkClient, id: string, sourceRevision: Revision, store: IModel) {
+	constructor(client: MendixSdkClient, id: string, project: Project, store: IModel) {
 		this._client = client;
 		this._id = id;
-		this._sourceRevision = sourceRevision;
+		this._project = project;
 		this._model = store;
 	}
 
@@ -620,18 +610,12 @@ export class OnlineWorkingCopy {
 		return this._id;
 	}
 
-	/**
-	* @returns Revision (which contains the team server source branch) of this Online Working Copy
-	*/
-	sourceRevision(): Revision {
-		return this._sourceRevision;
-	}
 
 	/**
 		 * @returns The project of which this Online Working Copy contains a model snapshot.
 		 */
 	project(): Project {
-		return this._sourceRevision.branch().project();
+		return this._project;
 	}
 
 	/**
@@ -697,11 +681,11 @@ export class Revision {
 		 */
 	deploy(onSuccess: (deploymentInfo: DeploymentInfo) => void, onError: (error) => void): when.Promise<DeploymentInfo> {
 		return when.promise<DeploymentInfo>((resolve, reject) => {
-			console.log('Deploying %s@%d of %s:%s...', this._branch.name(), this._num, this._branch.project().name(), this._branch.project().id());
+			console.log('Deploying %s@%d of %s...', this._branch.name(), this._num, this._branch.project().id());
 
 			let deploymentInfo: DeploymentInfo = null;
 
-			console.log('Deployment of %s@%d of %s:%s successful.', this._branch.name(), this._num, this._branch.project().name(), this._branch.project().id());
+			console.log('Deployment of %s@%d of %s successful.', this._branch.name(), this._num, this._branch.project().id());
 			resolve(deploymentInfo);
 		});
 	}
@@ -729,7 +713,7 @@ export class Branch {
 
 	retrieveRevisions(): when.Promise<Revision[]> {
 		return when.promise<Revision[]>((resolve, reject) => {
-			console.log(`Retrieving revisions for project ${this._project.name() } branch ${this.name}...`);
+			console.log(`Retrieving revisions for project ${this._project.id() } branch ${this.name}...`);
 
 			// TODO: Retrieve revisions for this branch with the Platform API
 			let revisions: Revision[] = null;
