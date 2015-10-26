@@ -256,7 +256,7 @@ export class PlatformSdkClient {
 	* @param revision A Revision instance pointing to a revision number on a specific Team Server branch
 	* @returns a Promise of an OnlineWorkingCopy in the Mendix Model Server corresponding to the given project and revision.
 	*/
-	openOnlineWorkingCopy(wcId: string, projectId: string, sourceRevision?: Revision): when.Promise<OnlineWorkingCopy> {
+	openOnlineWorkingCopy(wcId: string, projectId: string): when.Promise<OnlineWorkingCopy> {
 		return when.promise<OnlineWorkingCopy>((resolve, reject) => {
 			const project = new Project(this._client, projectId);
 			this._client.model().openWorkingCopy(wcId,
@@ -308,7 +308,7 @@ export class PlatformSdkClient {
 
 				console.log('Successfully created new online working copy %s for project %s', wcId, project.id());
 
-				return this.openOnlineWorkingCopy(wcId, project.id(), revision);
+				return this.openOnlineWorkingCopy(wcId, project.id());
 			});
 	}
 
