@@ -22,6 +22,21 @@
     },
     "jsonpath/jsonpath.d.ts": {
       "commit": "a461a243e2e09b213bc49d12650f80d81047576d"
+    },
+    "assertion-error/assertion-error.d.ts": {
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
+    },
+    "chai/chai.d.ts": {
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
+    },
+    "mocha/mocha.d.ts": {
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
+    },
+    "promises-a-plus/promises-a-plus.d.ts": {
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
+    },
+    "chai-as-promised/chai-as-promised.d.ts": {
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
     }
   }
 }
