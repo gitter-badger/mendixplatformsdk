@@ -135,15 +135,6 @@ export class MendixSdkClient {
 	model(): ModelSdkClient {
 		return this._modelSdkClient;
 	}
-
-	/**
-	* Retrieve all your Mendix App projects.
-	*
-	* @returns An array of Project instances that each represent one of your Mendix Platform projects.
-	*/
-	retrieveProjects(): when.Promise<Project[]> {
-		return this._platformSdkClient.retrieveProjects(this);
-	}
 }
 
 // Internal (similar to the Model API 'SdkClient')
@@ -206,45 +197,6 @@ export class PlatformSdkClient {
 				console.log(`Project created successfully for user ${this._username} with id ${jobResult.result}`);
 				return new Project(this._client, jobResult.result, projectName);
 			});
-	}
-
-	/**
-	* TODO: implementation
-	*/
-	retrieveProjects(client: MendixSdkClient): when.Promise<Project[]> {
-		console.log(`Retrieving projects for user ${this._username}...`);
-
-		// TODO: Implement this properly, including templating of the entity
-		let apiClient = rest.wrap(pathPrefix, { prefix: this._projectsApiEndpoint });
-		return apiClient({
-			path: PlatformSdkClient.PROJECTS_API_PATH,
-			method: `POST`,
-			entity: null // TODO: templating
-		}).then(response => {
-			// TODO: Extract raw list of projects from response entity.
-			let rawProjects: [{}] = response.entity;
-
-			// TODO: Return a mapping of each raw project to a nicely typed representation.
-			let projects = rawProjects.map(raw => new Project(client, 'TODO-ID', 'Sprintr'));
-
-			console.log('Retrieved projects for user %s: %s', this._username, projects.map(p => p.id() + ':' + p.name()).join(', '));
-
-			return projects;
-		});
-	}
-
-	/**
-	* TODO: implementation
-	*/
-	retrieveBranches(project: Project): when.Promise<Branch[]> {
-		console.log('Retrieving branches for project %s : %s', project.id(), project.name());
-		return when.promise<Branch[]>((resolve, reject) => {
-			// TODO: Retrieve available branches from the Platform API
-			let branches: Branch[] = [];
-
-			console.log('Successfully retrieved branches for project %s : %s : %s', project.id(), project.name(), branches.map(b => b.name).join(', '));
-			resolve(branches);
-		});
 	}
 
 	/**
@@ -560,10 +512,6 @@ export class Project {
 		return this._name;
 	}
 
-	retrieveBranches(): when.Promise<Branch[]> {
-		return this._client.platform().retrieveBranches(this);
-	}
-
 	/**
 		 * Create a new Online Working Copy for the given project based on a given revision.
 		 *
@@ -573,14 +521,6 @@ export class Project {
 	createWorkingCopy(revision?: Revision): when.Promise<OnlineWorkingCopy> {
 		return this._client.platform().createOnlineWorkingCopy(this, revision);
 	};
-
-	createFeedbackItem(name: string, description: string, onSuccess?: (feedbackItem: FeedbackItem) => void, onError?: (error) => void): void {
-		// TODO
-	}
-
-	createUserStory(name: string, description: string, onSuccess: (userStory: UserStory) => void, onError: (error) => void): void {
-		// TODO
-	}
 }
 
 /**
@@ -677,20 +617,6 @@ export class Revision {
 	createWorkingCopy(): when.Promise<OnlineWorkingCopy> {
 		return this._branch.project().createWorkingCopy(this);
 	}
-
-	/**
-		 * TODO: Implementation
-		 */
-	deploy(onSuccess: (deploymentInfo: DeploymentInfo) => void, onError: (error) => void): when.Promise<DeploymentInfo> {
-		return when.promise<DeploymentInfo>((resolve, reject) => {
-			console.log('Deploying %s@%d of %s:%s...', this._branch.name(), this._num, this._branch.project().name(), this._branch.project().id());
-
-			let deploymentInfo: DeploymentInfo = null;
-
-			console.log('Deployment of %s@%d of %s:%s successful.', this._branch.name(), this._num, this._branch.project().name(), this._branch.project().id());
-			resolve(deploymentInfo);
-		});
-	}
 }
 
 /**
@@ -712,29 +638,6 @@ export class Branch {
 	name(): string {
 		return this._name;
 	}
-
-	retrieveRevisions(): when.Promise<Revision[]> {
-		return when.promise<Revision[]>((resolve, reject) => {
-			console.log(`Retrieving revisions for project ${this._project.name() } branch ${this.name}...`);
-
-			// TODO: Retrieve revisions for this branch with the Platform API
-			let revisions: Revision[] = null;
-
-			resolve(revisions);
-		});
-	}
-}
-
-export interface DeploymentInfo {
-	applicationUrl(): string;
-}
-
-export interface FeedbackItem {
-
-}
-
-export interface UserStory {
-
 }
 
 function rejectWithError(error: Error, reject: (reason: any) => void): void {
