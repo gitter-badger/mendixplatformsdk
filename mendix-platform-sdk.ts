@@ -96,11 +96,11 @@ export class MendixSdkClient {
 	private static DEFAULT_PROJECTSAPI_ENDPOINT = `https://sprintr.home.mendix.com`;
 
 	/**
-		 * Create a new client to access [Mendix](developer.mendix.com) Platform and Model APIs.
-		 *
-		 * @param username Username of your account (same as username used to log in to the Mendix Development Portal)
-		 * @param apikey API key for your account.
-		 */
+	 * Create a new client to access [Mendix](developer.mendix.com) Platform and Model APIs.
+	 *
+	 * @param username Username of your account (same as username used to log in to the Mendix Development Portal)
+	 * @param apikey API key for your account.
+	 */
 	constructor(username: string, apikey?: string, password?: string, openid?: string, projectsApiEndpoint?: string, modelApiEndpoint?: string) {
 		let credentials: configuration.IBackendCredentials | configuration.ISdkCredentials;
 
@@ -164,12 +164,12 @@ export class PlatformSdkClient {
 	}
 
 	/**
-	* Creates a new app and commits it to the Team Server.
-	*
-	* @param projectName The name of the new app
-	* @param projectSummary (Optional) A short description of the new app
-	* @returns a Promise of a Mendix App Project
-	*/
+	 * Creates a new app and commits it to the Team Server.
+	 *
+	 * @param projectName The name of the new app
+	 * @param projectSummary (Optional) A short description of the new app
+	 * @returns a Promise of a Mendix App Project
+	 */
 	createNewApp(projectName: string, projectSummary?: string): when.Promise<Project> {
 		console.log(`Creating new project with name ${projectName} for user ${this._username}...`);
 
@@ -200,12 +200,12 @@ export class PlatformSdkClient {
 	}
 
 	/**
-	* Expose a specific Team Server revision as an Online Working Copy.
-	*
-	* @param project an instance of a Mendix App Project
-	* @param revision A Revision instance pointing to a revision number on a specific Team Server branch
-	* @returns a Promise of an OnlineWorkingCopy in the Mendix Model Server corresponding to the given project and revision.
-	*/
+	 * Expose a specific Team Server revision as an Online Working Copy.
+	 *
+	 * @param project an instance of a Mendix App Project
+	 * @param revision A Revision instance pointing to a revision number on a specific Team Server branch
+	 * @returns a Promise of an OnlineWorkingCopy in the Mendix Model Server corresponding to the given project and revision.
+	 */
 	createOnlineWorkingCopy(project: Project, revision: Revision): when.Promise<OnlineWorkingCopy> {
 		console.log(`Creating new online working copy for project ${project.id() } : ${project.name() }`);
 
@@ -252,13 +252,13 @@ export class PlatformSdkClient {
 	}
 
 	/**
-	* Commit changes in your Online Working Copy to your model back to the Team Server.
-	*
-	* @param workingCopy an OnlineWorkingCopy instance pointing to a working copy on the Mendix Model server.
-	* @param branchName (Optional) The name of the branch to commit to, or null for main line. Default is null.
-	* @param baseRevision (Optional) The base revision for this commit, or -1 for HEAD. Default is -1.
-	* @returns a Promise of a Team Server Revision corresponding to the given workingCopy.
-	*/
+	 * Commit changes in your Online Working Copy to your model back to the Team Server.
+	 *
+	 * @param workingCopy an OnlineWorkingCopy instance pointing to a working copy on the Mendix Model server.
+	 * @param branchName (Optional) The name of the branch to commit to, or null for main line. Default is null.
+	 * @param baseRevision (Optional) The base revision for this commit, or -1 for HEAD. Default is -1.
+	 * @returns a Promise of a Team Server Revision corresponding to the given workingCopy.
+	 */
 	commitToTeamServer(workingCopy: OnlineWorkingCopy, branchName: string = null, baseRevision: number = -1): when.Promise<Revision> {
 		if (workingCopy == null || workingCopy.project() == null) {
 			return when.reject<Revision>(`Working copy is empty or does not contain referral to project`);
@@ -488,10 +488,10 @@ export class Project {
 	private _name: string;
 
 	/**
-	* @param client a MendixSdkClient instance
-	* @param id Project id returned by the Mendix Projects API
-	* @param name The desired project name
-	*/
+	 * @param client a MendixSdkClient instance
+	 * @param id Project id returned by the Mendix Projects API
+	 * @param name The desired project name
+	 */
 	constructor(client: MendixSdkClient, id: string, name: string) {
 		this._client = client;
 		this._id = id;
@@ -499,25 +499,25 @@ export class Project {
 	}
 
 	/**
-		 * @returns ID of this Project
-		 */
+	 * @returns ID of this Project
+	 */
 	id(): string {
 		return this._id;
 	}
 
 	/**
-		 * @returns name of this Project
-		 */
+	 * @returns name of this Project
+	 */
 	name(): string {
 		return this._name;
 	}
 
 	/**
-		 * Create a new Online Working Copy for the given project based on a given revision.
-		 *
-		 * @param revision The team server revision number.
-		 * @returns A Promise of a WorkingCopy instance that represents your new Online Working Copy.
-		 */
+	 * Create a new Online Working Copy for the given project based on a given revision.
+	 *
+	 * @param revision The team server revision number.
+	 * @returns A Promise of a WorkingCopy instance that represents your new Online Working Copy.
+	 */
 	createWorkingCopy(revision?: Revision): when.Promise<OnlineWorkingCopy> {
 		return this._client.platform().createOnlineWorkingCopy(this, revision);
 	};
@@ -540,44 +540,44 @@ export class OnlineWorkingCopy {
 	}
 
 	/**
-		 * @returns ID of this Online Working Copy
-		 */
+	 * @returns ID of this Online Working Copy
+	 */
 	id(): string {
 		return this._id;
 	}
 
 	/**
-	* @returns Revision (which contains the team server source branch) of this Online Working Copy
-	*/
+	 * @returns Revision (which contains the team server source branch) of this Online Working Copy
+	 */
 	sourceRevision(): Revision {
 		return this._sourceRevision;
 	}
 
 	/**
-		 * @returns The project of which this Online Working Copy contains a model snapshot.
-		 */
+	 * @returns The project of which this Online Working Copy contains a model snapshot.
+	 */
 	project(): Project {
 		return this._sourceRevision.branch().project();
 	}
 
 	/**
-		 * @returns The model stored in this Online Working Copy
-		 */
+	 * @returns The model stored in this Online Working Copy
+	 */
 	model(): IModel {
 		return this._model;
 	}
 
 	/**
-		 * Commit changes in this Online Working Copy to the Team Server.
-		 * IMPORTANT: After committing, the connection to the Model Server is closed.
-		 * This means that you cannot commit any changes you make to the working copy after first committing.
-		 * If you want to make any further changes, create a new working copy by calling createWorkingCopy()
-		 * on the returned revision.
-		 *
-		 * @param branchName (Optional) the branch to commit to. Use null for main line.
-		 * @param baseRevision (Optional) the base revision of this commit.
-		 * @returns a Promise of a Team Server Revision
-		 */
+	 * Commit changes in this Online Working Copy to the Team Server.
+	 * IMPORTANT: After committing, the connection to the Model Server is closed.
+	 * This means that you cannot commit any changes you make to the working copy after first committing.
+	 * If you want to make any further changes, create a new working copy by calling createWorkingCopy()
+	 * on the returned revision.
+	 *
+	 * @param branchName (Optional) the branch to commit to. Use null for main line.
+	 * @param baseRevision (Optional) the base revision of this commit.
+	 * @returns a Promise of a Team Server Revision
+	 */
 	commit(branchName?: string, baseRevision?: number): when.Promise<Revision> {
 		return when.promise<void>((resolve, reject) => {
 			console.log(`Closing connection to Model API...`);
