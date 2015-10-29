@@ -639,18 +639,3 @@ export class Branch {
 		return this._name;
 	}
 }
-
-function rejectWithError(error: Error, reject: (reason: any) => void): void {
-	let errorType = typeof (error);
-	switch (errorType) {
-		case 'ParseError':
-			reject(`Response parsing error: ${error.message}. Please consult https://mxforum.mendix.com/`);
-			break;
-		case 'EmptyError':
-			reject(`Empty response error: ${error.message}. Please consult https://mxforum.mendix.com/`);
-			break;
-		default:
-			reject(`${error.name}: ${error.message}. Please consult https://mxforum.mendix.com/`);
-			break;
-	}
-}
