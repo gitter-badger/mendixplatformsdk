@@ -388,9 +388,7 @@ export class PlatformSdkClient {
 			headers: {
 				'Content-Type': 'text/xml;charset=UTF-8'
 			},
-			mixin: {
-				rejectUnauthorized: false
-			},
+			mixin: {},
 			entity: payload
 		};
 	}
