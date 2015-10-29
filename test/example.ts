@@ -1,8 +1,8 @@
-/// <reference path='./typings/tsd.d.ts' />
+/// <reference path='../typings/tsd.d.ts' />
 
-import {MendixSdkClient, OnlineWorkingCopy} from 'mendixplatformsdk';
 import {IModel, domainmodels} from 'mendixmodelsdk';
 
+import sdk = require('../mendix-platform-sdk');
 import when = require('when');
 import chai = require('chai');
 var expect = chai.expect;
@@ -15,7 +15,7 @@ chai.use(chaiAsPromised);
 const username = 'richard.ford51@example.com';
 const apikey = '364fbe6d-c34d-4568-bb7c-1baa5ecdf9d1';
 
-const client = new MendixSdkClient(username, apikey, null, null, 'https://sprintr.home.mendix.dev', 'https://model-api.mendix.dev');
+const client = new sdk.MendixSdkClient(username, apikey, null, null, 'https://sprintr.home.mendix.dev', 'https://model-api.mendix.dev');
 
 describe(`Teamserver - Modelserver Integration`, function() {
     this.timeout(50000);
@@ -40,15 +40,15 @@ describe(`Teamserver - Modelserver Integration`, function() {
     });
 });
 
-function loadDomainModel(workingCopy: OnlineWorkingCopy): when.Promise<OnlineWorkingCopy> {
+function loadDomainModel(workingCopy: sdk.OnlineWorkingCopy): when.Promise<sdk.OnlineWorkingCopy> {
     const dm = pickDomainModel(workingCopy);
 
-    return when.promise<OnlineWorkingCopy>((resolve, reject) => {
+    return when.promise<sdk.OnlineWorkingCopy>((resolve, reject) => {
         dm.load(dm => resolve(workingCopy));
     })
 }
 
-function pickDomainModel(workingCopy: OnlineWorkingCopy): domainmodels.IDomainModel {
+function pickDomainModel(workingCopy: sdk.OnlineWorkingCopy): domainmodels.IDomainModel {
     return workingCopy.model().allDomainModels()
         .filter(dm => dm.qualifiedName === 'MyFirstModule')[0];
 }

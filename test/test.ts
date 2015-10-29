@@ -22,11 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-/// <reference path='./typings/tsd.d.ts' />
-
-import {MendixSdkClient, Project, Revision, Branch, OnlineWorkingCopy} from 'mendixplatformsdk';
 import {IModel, domainmodels, projects} from 'mendixmodelsdk';
 
+import sdk = require('../mendix-platform-sdk');
 import when = require('when');
 import chai = require('chai');
 var expect = chai.expect;
@@ -41,16 +39,16 @@ const projectName = `Roundtrip Integration`;
 
 describe('MendixSdkClient credentials', function() {
 	it('should throw for null username', () => {
-		expect(() => new MendixSdkClient(null)).to.throw('Incomplete credentials');
+		expect(() => new sdk.MendixSdkClient(null)).to.throw('Incomplete credentials');
 	});
 	it('should throw for null apikey', () => {
-		expect(() => new MendixSdkClient('some username', null)).to.throw('Incomplete credentials');
+		expect(() => new sdk.MendixSdkClient('some username', null)).to.throw('Incomplete credentials');
 	});
 	it('should throw for null password if apikey is also null', () => {
-		expect(() => new MendixSdkClient('some username', null, null)).to.throw('Incomplete credentials');
+		expect(() => new sdk.MendixSdkClient('some username', null, null)).to.throw('Incomplete credentials');
 	});
 	it('should throw for null openid if apikey is also null', () => {
-		expect(() => new MendixSdkClient('some username', null, 'some password', null)).to.throw('Incomplete credentials');
+		expect(() => new sdk.MendixSdkClient('some username', null, 'some password', null)).to.throw('Incomplete credentials');
 	});
 });
 
@@ -63,7 +61,7 @@ interface MendixSdkClientConfig {
 	modelApiEndpoint?: string;
 }
 
-function createMendixSdkClient(config: MendixSdkClientConfig): MendixSdkClient {
+function createMendixSdkClient(config: MendixSdkClientConfig): sdk.MendixSdkClient {
 	const defaultConfig: MendixSdkClientConfig = {
 		username: 'richard.ford51@example.com',
 		apiKey: '364fbe6d-c34d-4568-bb7c-1baa5ecdf9d1',
@@ -72,7 +70,7 @@ function createMendixSdkClient(config: MendixSdkClientConfig): MendixSdkClient {
 		projectsApiEndpoint: 'https://sprintr.home.mendix.dev',
 		modelApiEndpoint: 'https://model-api.mendix.dev'
 	};
-	return new MendixSdkClient(
+	return new sdk.MendixSdkClient(
 		config.username ? config.username : defaultConfig.username,
 		config.apiKey ? config.apiKey : defaultConfig.apiKey,
 		config.password ? config.password : defaultConfig.password,
@@ -94,7 +92,7 @@ let clientWithInvalidEndPoint = createMendixSdkClient({
 	projectsApiEndpoint: 'https://sprintr.home.mendix.dev/invalid'
 });
 
-describe('create new app', function() {
+describe('create new app', function() { //function() instead of () => because in TS the `this` keyword has a different scope compared to what it is in JS
 	this.timeout(50000);
 
 	const projectName = `mySdkProject`;
@@ -132,18 +130,18 @@ describe('create new app', function() {
 });
 
 
-const roundTripProject = new Project(client, projectId, projectName);
+const roundTripProject = new sdk.Project(client, projectId, projectName);
 
-const mainLineOnRoundTrip = new Branch(roundTripProject, null);
-const nonExistentBranchOnRoundTrip = new Branch(roundTripProject, "Non-existentBranch"); //including a space in the branch name will cause issue in the assertion due to encoding
+const mainLineOnRoundTrip = new sdk.Branch(roundTripProject, null);
+const nonExistentBranchOnRoundTrip = new sdk.Branch(roundTripProject, "Non-existentBranch"); //including a space in the branch name will cause issue in the assertion due to encoding
 
-const validRevisionOnMainLineOnRoundTrip = new Revision(3, mainLineOnRoundTrip);
-const invalidRevisionOnMainLineOnRoundTrip = new Revision(999, mainLineOnRoundTrip);
-const revisionOnNonExistentBranch = new Revision(-1, nonExistentBranchOnRoundTrip);
+const validRevisionOnMainLineOnRoundTrip = new sdk.Revision(3, mainLineOnRoundTrip);
+const invalidRevisionOnMainLineOnRoundTrip = new sdk.Revision(999, mainLineOnRoundTrip);
+const revisionOnNonExistentBranch = new sdk.Revision(-1, nonExistentBranchOnRoundTrip);
 
-const nonExistentProject = new Project(client, `Random non-existent id`, `empty`);
-const mainLineOnNonExistentProject = new Branch(nonExistentProject, null);
-const revisionOnNonExistentProject = new Revision(3, mainLineOnNonExistentProject);
+const nonExistentProject = new sdk.Project(client, `Random non-existent id`, `empty`);
+const mainLineOnNonExistentProject = new sdk.Branch(nonExistentProject, null);
+const revisionOnNonExistentProject = new sdk.Revision(3, mainLineOnNonExistentProject);
 
 describe('expose working copy', function() {
 
@@ -180,9 +178,9 @@ describe('expose working copy', function() {
 
 describe('commit to teamserver', function() {
 	this.timeout(50000);
-	const invalidProject = new Project(client, `WhateverId`, `WhateverName`);
-	const revisionOnInvalidProject = new Revision(-1, new Branch(invalidProject, null));
-	const nonExistentWorkingCopy = new OnlineWorkingCopy(client, `Obviously does not exist`, revisionOnInvalidProject, null);
+	const invalidProject = new sdk.Project(client, `WhateverId`, `WhateverName`);
+	const revisionOnInvalidProject = new sdk.Revision(-1, new sdk.Branch(invalidProject, null));
+	const nonExistentWorkingCopy = new sdk.OnlineWorkingCopy(client, `Obviously does not exist`, revisionOnInvalidProject, null);
 	const nonExistentBranchName = `Non-existentBranch`;
 
 	// before((done) => {
@@ -204,8 +202,8 @@ describe('commit to teamserver', function() {
 	// });
 
 	describe('with a newly created project and working copy', () => {
-		let sharedProject: Project;
-		let workingCopy: OnlineWorkingCopy;
+		let sharedProject: sdk.Project;
+		let workingCopy: sdk.OnlineWorkingCopy;
 		before((mochaDone) => {
 			client.platform().createNewApp('TestApp').done(
 				(project) => {
@@ -294,7 +292,7 @@ describe('commit to teamserver', function() {
 	});
 });
 
-function updateModel(wc: OnlineWorkingCopy): OnlineWorkingCopy {
+function updateModel(wc: sdk.OnlineWorkingCopy): sdk.OnlineWorkingCopy {
 	const project = wc.model().root;
 	const mod = new projects.Module(project);
 	mod.name = `NewModule_${Date.now() }`;
@@ -335,7 +333,7 @@ if (false) {
 		.then(project => project.retrieveBranches())
 		.then(branches => branches.filter(b => b.name() === branchName)[0])
 		.then(branch => branch.retrieveRevisions())
-		.then(revisions => revisions.reduce((prev: Revision, cur: Revision) => prev.num > cur.num ? prev : cur))
+		.then(revisions => revisions.reduce((prev: sdk.Revision, cur: sdk.Revision) => prev.num > cur.num ? prev : cur))
 		.then(revision => revision.createWorkingCopy())
 		.then(workingCopy => {
 			// Do changes ...
@@ -352,8 +350,8 @@ if (false) {
 				errorHandler);
 		}, errorHandler);
 
-	function manipulateModel(workingCopy: OnlineWorkingCopy): when.Promise<OnlineWorkingCopy> {
-		return when.promise<OnlineWorkingCopy>((resolve, reject) => {
+	function manipulateModel(workingCopy: sdk.OnlineWorkingCopy): when.Promise<sdk.OnlineWorkingCopy> {
+		return when.promise<sdk.OnlineWorkingCopy>((resolve, reject) => {
 			// Use 'workingCopy.model()' to get access to the model stored in the working copy so that you can analyze/manipulate your model:
 			workingCopy.model().allMicroflows().forEach(mf => {
 				console.log('Found microflow: %s', mf.qualifiedName);

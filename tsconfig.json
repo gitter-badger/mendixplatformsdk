@@ -6,6 +6,8 @@
 		"sourceMap": true
 	},
 	"files": [
-		"mendix-platform-sdk.ts"
+		"mendix-platform-sdk.ts",
+		"test/test.ts",
+		"test/example.ts"
 	]
 }
