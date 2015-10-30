@@ -26,6 +26,7 @@ THE SOFTWARE.
 import {ModelSdkClient, IModel, configuration, domainmodels, microflows} from "mendixmodelsdk";
 
 import fs = require("fs");
+import os = require("os");
 import path = require("path");
 import when = require("when");
 
@@ -108,13 +109,13 @@ export class MendixSdkClient {
 			credentials = {
 				username: username,
 				apikey: apikey
-			}
+			};
 		} else if (password && openid) {
 			credentials = {
 				username: username,
 				password: password,
 				openid: openid
-			}
+			};
 		} else {
 			throw new Error(`Incomplete credentials`);
 		}
@@ -496,7 +497,7 @@ export class PlatformSdkClient {
 					this._parseAndQuery(response.entity, '$..faultstring[0]')
 						.done(
 						(cause) => {
-							reject(`${errorMessage}: ${cause}`);
+							reject(`${errorMessage}: ${cause.replace(/\\[\r\n]+/g, os.EOL)}`);
 						},
 						(error) => {
 							reject(error);
